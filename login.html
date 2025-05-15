@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Prevent footer overlap */
+        body {
+            padding-bottom: 80px;
+        }
+        /* Input focus effect */
+        input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+            transition: all 0.3s ease;
+        }
+        /* Button hover effect */
+        button[type="submit"] {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        button[type="submit"]:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        /* Tab transition */
+        #loginTab, #signupTab {
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+        /* Gradient for footer */
+        footer {
+            background: linear-gradient(90deg, #2563eb, #1e40af);
+        }
+        /* Improved typography */
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        #loginTab, #signupTab {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        /* Password toggle button */
+        .password-toggle {
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 flex items-center justify-center min-h-screen">
+    <div class="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
+        <!-- Tab Toggle -->
+        <div class="flex justify-center mb-6">
+            <button id="loginTab" class="px-4 py-2 text-blue-600 font-semibold border-b-2 border-blue-600">Login</button>
+            <button id="signupTab" class="px-4 py-2 text-gray-600 font-semibold">Signup</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="loginEmail" class="block text-sm">Email</label>
+                <input
+                    type="email"
+                    id="loginEmail"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter your email"
+                />
+                <p id="loginEmailError" class="text-red-500 text-sm hidden">Email is required</p>
+            </div>
+            <div class="relative">
+                <label for="loginPassword" class="block text-sm">Password</label>
+                <input
+                    type="password"
+                    id="loginPassword"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter your password"
+                />
+                <span
+                    class="password-toggle absolute right-3 top-9 text-gray-600"
+                    onclick="togglePassword('loginPassword')"
+                >
+                    👁️
+                </span>
+                <p id="loginPasswordError" class="text-red-500 text-sm hidden">Password is required</p>
+            </div>
+            <button
+                type="submit"
+                id="loginSubmit"
+                class="w-full bg-blue-600 text-white p-2 rounded"
+            >
+                Login
+            </button>
+        </form>
+
+        <!-- Signup Form (Hidden by Default) -->
+        <form id="signupForm" class="space-y-4 hidden">
+            <div>
+                <label for="signupName" class="block text-sm">Full Name</label>
+                <input
+                    type="text"
+                    id="signupName"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter your full name"
+                />
+                <p id="signupNameError" class="text-red-500 text-sm hidden">Name is required</p>
+            </div>
+            <div>
+                <label for="signupEmail" class="block text-sm">Email</label>
+                <input
+                    type="email"
+                    id="signupEmail"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter your email"
+                />
+                <p id="signupEmailError" class="text-red-500 text-sm hidden">Email is required</p>
+            </div>
+            <div class="relative">
+                <label for="signupPassword" class="block text-sm">Password</label>
+                <input
+                    type="password"
+                    id="signupPassword"
+                    class="w-full p-2 border border-gray-300 rounded"
+                    placeholder="Enter your password"
+                />
+                <span
+                    class="password-toggle absolute right-3 top-9 text-gray-600"
+                    onclick="togglePassword('signupPassword')"
+                >
+                    👁️
+                </span>
+                <p id="signupPasswordError" class="text-red-500 text-sm hidden">Password is required</p>
+            </div>
+            <button
+                type="submit"
+                id="signupSubmit"
+                class="w-full bg-blue-600 text-white p-2 rounded"
+            >
+                Signup
+            </button>
+        </form>
+
+        <p class="mt-4 text-center">
+            <a href="index.html" class="text-blue-600 hover:underline">Back to Movie Search</a>
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-white py-4 fixed bottom-0 w-full">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 Movie Search App. All rights reserved.</p>
+            <div class="mt-2">
+                <a href="index.html" class="text-white hover:underline mx-2">Home</a>
+                <a href="login.html" class="text-white hover:underline mx-2">Login</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const loginTab = document.getElementById("loginTab");
+        const signupTab = document.getElementById("signupTab");
+        const loginForm = document.getElementById("loginForm");
+        const signupForm = document.getElementById("signupForm");
+        const loginSubmit = document.getElementById("loginSubmit");
+        const signupSubmit = document.getElementById("signupSubmit");
+
+        // Toggle between Login and Signup
+        function showLogin() {
+            loginTab.classList.add("border-b-2", "border-blue-600", "text-blue-600");
+            signupTab.classList.remove("border-b-2", "border-blue-600", "text-blue-600");
+            signupTab.classList.add("text-gray-600");
+            loginForm.classList.remove("hidden");
+            signupForm.classList.add("hidden");
+            loginTab.focus();
+        }
+
+        function showSignup() {
+            signupTab.classList.add("border-b-2", "border-blue-600", "text-blue-600");
+            loginTab.classList.remove("border-b-2", "border-blue-600", "text-blue-600");
+            loginTab.classList.add("text-gray-600");
+            signupForm.classList.remove("hidden");
+            loginForm.classList.add("hidden");
+            signupTab.focus();
+        }
+
+        loginTab.addEventListener("click", showLogin);
+        signupTab.addEventListener("click", showSignup);
+
+        // Password visibility toggle
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === "password" ? "text" : "password";
+        }
+
+        // Prefill signup form from local storage
+        window.addEventListener("load", () => {
+            const savedName = localStorage.getItem("signupName");
+            const savedEmail = localStorage.getItem("signupEmail");
+            if (savedName) document.getElementById("signupName").value = savedName;
+            if (savedEmail) document.getElementById("signupEmail").value = savedEmail;
+        });
+
+        // Login Form Submission
+        loginForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+            const emailError = document.getElementById("loginEmailError");
+            const passwordError = document.getElementById("loginPasswordError");
+
+            emailError.classList.add("hidden");
+            passwordError.classList.add("hidden");
+
+            let valid = true;
+            if (!email) {
+                emailError.classList.remove("hidden");
+                valid = false;
+            }
+            if (!password) {
+                passwordError.classList.remove("hidden");
+                valid = false;
+            }
+
+            if (valid) {
+                loginSubmit.disabled = true;
+                loginSubmit.textContent = "Logging in...";
+                setTimeout(() => {
+                    alert("Login successful! (Mock submission)");
+                    loginForm.reset();
+                    loginSubmit.disabled = false;
+                    loginSubmit.textContent = "Login";
+                }, 1000);
+            }
+        });
+
+        // Signup Form Submission
+        signupForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = document.getElementById("signupName").value;
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+            const nameError = document.getElementById("signupNameError");
+            const emailError = document.getElementById("signupEmailError");
+            const passwordError = document.getElementById("signupPasswordError");
+
+            nameError.classList.add("hidden");
+            emailError.classList.add("hidden");
+            passwordError.classList.add("hidden");
+
+            let valid = true;
+            if (!name) {
+                nameError.classList.remove("hidden");
+                valid = false;
+            }
+            if (!email) {
+                emailError.classList.remove("hidden");
+                valid = false;
+            }
+            if (!password) {
+                passwordError.classList.remove("hidden");
+                valid = false;
+            }
+
+            if (valid) {
+                signupSubmit.disabled = true;
+                signupSubmit.textContent = "Signing up...";
+                localStorage.setItem("signupName", name);
+                localStorage.setItem("signupEmail", email);
+                setTimeout(() => {
+                    alert("Signup successful! (Mock submission)");
+                    signupForm.reset();
+                    signupSubmit.disabled = false;
+                    signupSubmit.textContent = "Signup";
+                }, 1000);
+            }
+        });
+
+        // Keyboard navigation for tabs
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight" && document.activeElement === loginTab) {
+                showSignup();
+            } else if (e.key === "ArrowLeft" && document.activeElement === signupTab) {
+                showLogin();
+            }
+        });
+    </script>
+</body>
+</html>

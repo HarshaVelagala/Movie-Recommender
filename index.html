@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Modal animation and styling */
+        #modal {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #modal.open {
+            display: flex;
+            opacity: 1;
+        }
+        #modal > div {
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        #modal.open > div {
+            transform: scale(1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+        /* Prevent footer overlap */
+        body {
+            padding-bottom: 80px;
+        }
+        /* Movie card hover effect */
+        .movie-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+        /* Search input focus effect */
+        #searchInput:focus {
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+            border-color: #2563eb;
+        }
+        /* Gradient for nav and footer */
+        nav, footer {
+            background: linear-gradient(90deg, #2563eb, #1e40af);
+        }
+        /* Improved typography */
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+        .movie-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    <!-- Navigation Bar -->
+    <nav class="text-white py-4 shadow-md">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <h1>Movie Search App</h1>
+            <a href="login.html" class="text-white hover:underline">Login</a>
+        </div>
+    </nav>
+
+    <!-- Search Bar and Filters -->
+    <section class="container mx-auto px-4 py-6">
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search for a movie..."
+                class="flex-1 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <select id="genreFilter" class="p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">All Genres</option>
+                <option value="Drama">Drama</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+                <option value="Action">Action</option>
+            </select>
+            <button
+                id="clearSearch"
+                class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-transform duration-200 hover:scale-105"
+            >
+                Clear
+            </button>
+        </div>
+    </section>
+
+    <!-- Movie Grid -->
+    <section class="container mx-auto px-4 py-6">
+        <div id="movieGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Movie cards will be populated by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Modal for Movie Details -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg p-6 max-w-lg w-full">
+            <h2 id="modalTitle" class="text-2xl font-bold mb-2"></h2>
+            <p id="modalGenre" class="text-gray-600 mb-2"></p>
+            <p id="modalYear" class="text-gray-600 mb-2"></p>
+            <p id="modalDescription" class="text-gray-800 mb-4"></p>
+            <button
+                id="closeModal"
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-transform duration-200 hover:scale-105"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-white py-4 fixed bottom-0 w-full">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 Movie Search App. All rights reserved.</p>
+            <div class="mt-2">
+                <a href="index.html" class="text-white hover:underline mx-2">Home</a>
+                <a href="login.html" class="text-white hover:underline mx-2">Login</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Static movie data
+        const movies = [
+            {
+                id: 1,
+                title: "The Shawshank Redemption",
+                genre: "Drama",
+                year: 1994,
+                description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+                poster: "https://via.placeholder.com/200x300?text=Shawshank"
+            },
+            {
+                id: 2,
+                title: "Inception",
+                genre: "Sci-Fi",
+                year: 2010,
+                description: "A thief with the ability to enter dreams and steal secrets must plant an idea into a target's mind.",
+                poster: "https://via.placeholder.com/200x300?text=Inception"
+            },
+            {
+                id: 3,
+                title: "The Dark Knight",
+                genre: "Action",
+                year: 2008,
+                description: "Batman faces the Joker, a criminal mastermind who seeks to create chaos in Gotham.",
+                poster: "https://via.placeholder.com/200x300?text=Dark+Knight"
+            },
+            {
+                id: 4,
+                title: "Forrest Gump",
+                genre: "Drama",
+                year: 1994,
+                description: "The life story of a man with a low IQ who achieves great things through his kind heart.",
+                poster: "https://via.placeholder.com/200x300?text=Forrest+Gump"
+            }
+        ];
+
+        // DOM elements
+        const searchInput = document.getElementById("searchInput");
+        const genreFilter = document.getElementById("genreFilter");
+        const clearSearch = document.getElementById("clearSearch");
+        const movieGrid = document.getElementById("movieGrid");
+        const modal = document.getElementById("modal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalGenre = document.getElementById("modalGenre");
+        const modalYear = document.getElementById("modalYear");
+        const modalDescription = document.getElementById("modalDescription");
+        const closeModal = document.getElementById("closeModal");
+
+        // Render movie cards
+        function renderMovies(movieList) {
+            movieGrid.innerHTML = "";
+            movieList.forEach(movie => {
+                const movieCard = document.createElement("div");
+                movieCard.className = "bg-white rounded-lg shadow-md overflow-hidden cursor-pointer movie-card";
+                movieCard.innerHTML = `
+                    <img src="${movie.poster}" alt="${movie.title}" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg">${movie.title}</h3>
+                    </div>
+                `;
+                movieCard.addEventListener("click", () => showMovieDetails(movie));
+                movieGrid.appendChild(movieCard);
+            });
+        }
+
+        // Show movie details in modal
+        function showMovieDetails(movie) {
+            modalTitle.textContent = movie.title;
+            modalGenre.textContent = `Genre: ${movie.genre}`;
+            modalYear.textContent = `Year: ${movie.year}`;
+            modalDescription.textContent = movie.description;
+            modal.classList.add("open");
+        }
+
+        // Close modal
+        function closeModalFunc() {
+            modal.classList.remove("open");
+        }
+        closeModal.addEventListener("click", closeModalFunc);
+
+        // Close modal on outside click
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                closeModalFunc();
+            }
+        });
+
+        // Filter movies
+        function filterMovies() {
+            const query = searchInput.value.toLowerCase();
+            const genre = genreFilter.value;
+            let filteredMovies = movies;
+
+            if (query) {
+                filteredMovies = filteredMovies.filter(movie =>
+                    movie.title.toLowerCase().includes(query)
+                );
+            }
+            if (genre) {
+                filteredMovies = filteredMovies.filter(movie =>
+                    movie.genre === genre
+                );
+            }
+
+            renderMovies(filteredMovies);
+        }
+
+        // Search input event
+        searchInput.addEventListener("input", filterMovies);
+
+        // Genre filter event
+        genreFilter.addEventListener("change", filterMovies);
+
+        // Clear search
+        clearSearch.addEventListener("click", () => {
+            searchInput.value = "";
+            genreFilter.value = "";
+            renderMovies(movies);
+        });
+
+        // Keyboard events
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modal.classList.contains("open")) {
+                closeModalFunc();
+            }
+            if (e.key === "Enter" && document.activeElement === searchInput) {
+                filterMovies();
+            }
+        });
+
+        // Initial render
+        renderMovies(movies);
+    </script>
+</body>
+</html>
